@@ -16,3 +16,11 @@ Example app that demonstrates how to run a Flask app with a free GPU using Googl
 - Click on `Runtime -> Run all`
 
 - In the output cell you should see a url similar to this: Running on `http://5fdc-104-196-187-169.ngrok.io`. Open this url and use your app.
+
+---
+
+set Ngrok authentication token
+ngrok http 5000
+go to another tab and source venv/bin/activate
+pip install -r requirements.txt
+and run main.py
