@@ -19,8 +19,11 @@ run_with_ngrok(app)
 
 # Load the SAM model and processor
 try:
+    print("----------HASAN1-------------")
     model = SamModel.from_pretrained("Zigeng/SlimSAM-uniform-50")
+    print("----------HASAN2-------------")
     model.to("cuda")
+    print("----------HASAN3-------------")
     processor = SamProcessor.from_pretrained("Zigeng/SlimSAM-uniform-50")
     print("SAM model and processor loaded successfully.")
 except Exception as e:
