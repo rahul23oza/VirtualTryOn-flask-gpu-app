@@ -29,7 +29,7 @@ except Exception as e:
 
 
 @app.route('/')
-def initial():
+def index():
   try:
     print("Initial page loaded!")
     img = load_image("https://picsum.photos/seed/picsum/200/300")
@@ -43,7 +43,7 @@ def initial():
     print("Image converted! Sending image ...",img_bytes)
     return render_template('index.html', img_bytes=img_bytes)
   except Exception as e:
-    print(f"Error loading initial: {e}")
+    print(f"Error loading initial---: {e}")
     return "Error loading initial page.======>"
 
 if __name__ == '__main__':
