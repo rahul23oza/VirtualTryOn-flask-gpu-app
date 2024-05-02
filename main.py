@@ -1,9 +1,9 @@
 from flask_ngrok import run_with_ngrok
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 
 import torch
 from diffusers import StableDiffusionPipeline
-
+from diffusers.utils import load_image, make_image_grid
 import base64
 from io import BytesIO
 
@@ -17,7 +17,20 @@ run_with_ngrok(app)
 
 @app.route('/')
 def initial():
-  return render_template('index.html')
+  return redirect(url_for('upload_image'))
+
+@app.route('/upload', methods=['GET', 'POST'])
+def upload_image():
+    if request.method == 'POST':
+        image_file = request.files['image']
+        if image_file:
+            image = load_image(image_file)
+            buffered = BytesIO()
+            image.save(buffered, format="PNG")
+            img_str = base64.b64encode(buffered.getvalue())
+            img_str = "data:image/png;base64," + str(img_str)[2:-1]
+            return render_template('upload.html', uploaded_image=img_str)
+    return render_template('upload.html')
 
 
 @app.route('/submit-prompt', methods=['POST'])
