@@ -1,4 +1,5 @@
 from email.mime import image
+from typing import final
 from flask_ngrok import run_with_ngrok
 from flask import Flask, render_template, request, redirect, url_for
 
@@ -6,7 +7,9 @@ import torch
 from torchvision import transforms
 # from diffusers import StableDiffusionPipeline
 from transformers import SamModel, SamProcessor
+from diffusers import AutoPipelineForInpainting
 from diffusers.utils import load_image, make_image_grid
+import matplotlib.pyplot as plt
 import base64
 from io import BytesIO
 
@@ -92,6 +95,7 @@ def index():
     # print("mask_2: ", mask_2)
 
     # display original image with masks
+    # make_image_grid([img, mask_1, mask_2], cols = 3, rows = 1)
     make_image_grid([img, mask_1], cols = 2, rows = 1)
 
     print("Original image with masks displayed!")
@@ -106,7 +110,52 @@ def index():
 
 
 
-    return render_template('index.html', img_bytes=img_bytes)
+
+    # create inpainting pipeline
+    pipeline = AutoPipelineForInpainting.from_pretrained(
+        "redstonehero/ReV_Animated_Inpainting",
+        torch_dtype=torch.float16
+    )
+    print("Inpainting pipeline created!")
+    pipeline.enable_model_cpu_offload()
+    print("Model offload enabled!")
+
+    # inpaint the image
+    prompt = "flower-print, t-shirt "
+
+    # generate image
+    print("Generating image ...")
+    img = pipeline.inpaint(
+        prompt=prompt,
+        width=512,
+        height=768,
+        num_inference_steps=24,
+        image=img,
+        mask_image=mask_1,
+        guidance_scale=3,
+        strength=1.0).images[0]
+    print("Image generated! Converting image ...")
+
+    # display input image and generated image
+    finalImg = make_image_grid([img.resize([512,768]), image], rows = 1, cols = 2)
+
+    print("Input image and generated image displayed!")
+
+    # convert image to bytes
+    img_final_bytes = BytesIO()
+    finalImg.save(img_final_bytes, format="PNG")
+    img_final_bytes = img_final_bytes.getvalue()
+    img_final_bytes = base64.b64encode(img_final_bytes)
+    img_final_bytes = img_final_bytes.decode("utf-8")
+    print("Image converted! Sending image ...")
+    
+
+    
+
+    
+
+
+    return render_template('index.html', img_bytes=img_final_bytes)
   except Exception as e:
     print(f"Error loading initial---: {e}")
     return "Error loading initial page.======>"
