@@ -43,7 +43,25 @@ def index():
     img_bytes = img_bytes.getvalue()
     img_bytes = base64.b64encode(img_bytes)
     img_bytes = img_bytes.decode("utf-8")
-    print("Image converted! Sending image ...",img_bytes)
+    print("Image converted! Sending image ...")
+
+
+    input_points = [[[320, 600]]] # input point for object selection
+
+    inputs = processor(img, input_points=input_points, return_tensors="pt").to("cuda")
+    print("Inputs generated! Running model ...")
+    outputs = model(**inputs)
+    print("Model run successfully! Post processing masks ...")
+    masks = processor.image_processor.post_process_masks(outputs.pred_masks.cpu(), inputs["original_sizes"].cpu(), inputs["reshaped_input_sizes"].cpu())
+    print("Masks post processed! Getting number of mask images ...")
+
+
+
+    # get number of mask images
+    len(masks[0][0])
+    print("Number of mask images: ", len(masks[0][0]))
+
+
     return render_template('index.html', img_bytes=img_bytes)
   except Exception as e:
     print(f"Error loading initial---: {e}")
