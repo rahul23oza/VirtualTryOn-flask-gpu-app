@@ -64,13 +64,13 @@ def index():
     print("Number of mask images:(1): ", len(masks[0][0]))
 
 
-    print("input_points_2")
-    input_points_2 = [[[200, 850]]]
-    inputs_2 = processor(img, input_points=input_points_2, return_tensors="pt").to("cuda")
-    outputs_2 = model(**inputs_2)
-    masks_2 = processor.image_processor.post_process_masks(outputs_2.pred_masks.cpu(), inputs["original_sizes"].cpu(), inputs["reshaped_input_sizes"].cpu())
-    len(masks_2[0][0])
-    print("Number of mask images(2): ", len(masks_2[0][0]))
+    # print("input_points_2")
+    # input_points_2 = [[[200, 850]]]
+    # inputs_2 = processor(img, input_points=input_points_2, return_tensors="pt").to("cuda")
+    # outputs_2 = model(**inputs_2)
+    # masks_2 = processor.image_processor.post_process_masks(outputs_2.pred_masks.cpu(), inputs["original_sizes"].cpu(), inputs["reshaped_input_sizes"].cpu())
+    # len(masks_2[0][0])
+    # print("Number of mask images(2): ", len(masks_2[0][0]))
 
 
 
@@ -79,34 +79,34 @@ def index():
 
     # Convert boolean tensors to binary tensors
     binary_matrix_1 = masks[0][0][2].to(dtype=torch.uint8)
-    binary_matrix_2 = masks_2[0][0][1].to(dtype=torch.uint8)
+    # binary_matrix_2 = masks_2[0][0][1].to(dtype=torch.uint8)
 
     print("binary_matrix_1: ", binary_matrix_1)
-    print("binary_matrix_2: ", binary_matrix_2)
+    # print("binary_matrix_2: ", binary_matrix_2)
 
     # apply the transform to the tensors
     mask_1 = to_pil(binary_matrix_1*255)
-    mask_2 = to_pil(binary_matrix_2*255)
+    # mask_2 = to_pil(binary_matrix_2*255)
 
     print("mask_1: ", mask_1)
-    print("mask_2: ", mask_2)
+    # print("mask_2: ", mask_2)
 
     # display original image with masks
-    make_image_grid([img, mask_1, mask_2], cols = 3, rows = 1)
+    make_image_grid([img, mask_1], cols = 2, rows = 1)
 
     print("Original image with masks displayed!")
 
-    img_grid = make_image_grid([img, mask_1, mask_2], cols = 3, rows = 1)
+    # img_grid = make_image_grid([img, mask_1, mask_2], cols = 3, rows = 1)
     # img_grid to png
-    img_grid_bytes = BytesIO()
-    img_grid.save(img_grid_bytes, format="PNG")
-    img_grid_bytes = img_grid_bytes.getvalue()
-    img_grid_bytes = base64.b64encode(img_grid_bytes)
-    img_grid_bytes = img_grid_bytes.decode("utf-8")
+    # img_grid_bytes = BytesIO()
+    # img_grid.save(img_grid_bytes, format="PNG")
+    # img_grid_bytes = img_grid_bytes.getvalue()
+    # img_grid_bytes = base64.b64encode(img_grid_bytes)
+    # img_grid_bytes = img_grid_bytes.decode("utf-8")
 
 
 
-    return render_template('index.html', img_bytes=img_grid_bytes)
+    return render_template('index.html', img_bytes=img_bytes)
   except Exception as e:
     print(f"Error loading initial---: {e}")
     return "Error loading initial page.======>"
