@@ -12,6 +12,10 @@ from io import BytesIO
 # pipe = StableDiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-5", revision="fp16", torch_dtype=torch.float16)
 # pipe.to("cuda")
 
+# Start flask app and set to ngrok
+app = Flask(__name__)
+run_with_ngrok(app)
+
 
 # Load the SAM model and processor
 try:
@@ -23,9 +27,6 @@ except Exception as e:
     print(f"Error loading SAM model and processor: {e}")
 
 
-# Start flask app and set to ngrok
-app = Flask(__name__)
-run_with_ngrok(app)
 
 @app.route('/')
 def initial():
@@ -39,10 +40,11 @@ def initial():
     img_bytes = img_bytes.getvalue()
     img_bytes = base64.b64encode(img_bytes)
     img_bytes = img_bytes.decode("utf-8")
-    print("Image converted! Sending image ...")
+    print("Image converted! Sending image ...",img_bytes)
     return render_template('index.html', img_bytes=img_bytes)
   except Exception as e:
     print(f"Error loading initial: {e}")
+    return "Error loading initial page.======>"
 
 if __name__ == '__main__':
     app.run()

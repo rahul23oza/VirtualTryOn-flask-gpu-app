@@ -10,8 +10,9 @@
 </head>
 
 <body>
-  <h1>Image Inpainting</h1>
+  <h1>Image Inpainting1</h1>
   <button onclick="window.location.href='{{ url_for('index') }}'">Upload Image</button>
+
 
   <div id="mask-images-container">
     <p>Images</p>
@@ -25,12 +26,22 @@
 
 
 
+
+
+
+
   <div id="upload-container" style="display: none;">
     <h2>Upload Image</h2>
-    <form id="upload-form" enctype="multipart/form-data">
+    <!-- <form id="upload-form" enctype="multipart/form-data">
       <input type="file" name="image" accept="image/*" required>
       <button type="submit">Upload</button>
+    </form> -->
+    <form id="upload-form">
+      <label for="image-url">Image URL:</label>
+      <input type="text" id="image-url" name="image-url" required>
+      <button type="submit">Upload</button>
     </form>
+
     <div id="upload-feedback"></div>
   </div>
   <div id="select-object-container" style="display: none;">
@@ -41,7 +52,10 @@
   </div>
   <div id="mask-images-container" style="display: none;">
     <h2>Mask Images</h2>
-    <div id="mask-images"></div>
+    <div id="mask-images">
+
+
+    </div>
   </div>
 </body>
 
