@@ -1,22 +1,26 @@
-<!-- upload.html -->
+<!-- select_object.html -->
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta charset="UTF-8">
-  <title>Upload Image</title>
+  <title>Select Object</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   <script src="{{ url_for('static', filename='script.js') }}"></script>
 </head>
 
 <body>
-  <h1>Upload Image</h1>
+  <h1>Select Object</h1>
   {% if error %}
   <p style="color: red;">{{ error }}</p>
   {% endif %}
-  {% if uploaded_image %}
-  <img src="{{ uploaded_image }}" alt="Uploaded Image">
-  <button onclick="showSelectObjectContainer()">Select Object</button>
+  {% if mask_images %}
+  <h2>Number of Mask Images: {{ num_masks }}</h2>
+  <div id="mask-images-container">
+    {% for mask_image in mask_images %}
+    <img src="{{ mask_image }}" alt="Mask Image">
+    {% endfor %}
+  </div>
   {% endif %}
 </body>
 

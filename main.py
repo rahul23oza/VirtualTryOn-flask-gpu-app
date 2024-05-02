@@ -2,14 +2,26 @@ from flask_ngrok import run_with_ngrok
 from flask import Flask, render_template, request, redirect, url_for
 
 import torch
-from diffusers import StableDiffusionPipeline
-from diffusers.utils import load_image, make_image_grid
+# from diffusers import StableDiffusionPipeline
+from transformers import SamModel, SamProcessor
+from diffusers.utils import load_image
 import base64
 from io import BytesIO
 
-# Load model
-pipe = StableDiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-5", revision="fp16", torch_dtype=torch.float16)
-pipe.to("cuda")
+# # Load model
+# pipe = StableDiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-5", revision="fp16", torch_dtype=torch.float16)
+# pipe.to("cuda")
+
+
+# Load the SAM model and processor
+try:
+    model = SamModel.from_pretrained("Zigeng/SlimSAM-uniform-50")
+    model.to("cuda")
+    processor = SamProcessor.from_pretrained("Zigeng/SlimSAM-uniform-50")
+    print("SAM model and processor loaded successfully.")
+except Exception as e:
+    print(f"Error loading SAM model and processor: {e}")
+
 
 # Start flask app and set to ngrok
 app = Flask(__name__)
@@ -17,38 +29,20 @@ run_with_ngrok(app)
 
 @app.route('/')
 def initial():
-  return redirect(url_for('upload_image'))
+  try:
+    print("Initial page loaded!")
+    img = load_image("https://picsum.photos/seed/picsum/200/300")
+    print("Image generated! Converting image ...", img)
 
-@app.route('/upload', methods=['GET', 'POST'])
-def upload_image():
-    if request.method == 'POST':
-        image_file = request.files['image']
-        if image_file:
-            image = load_image(image_file)
-            buffered = BytesIO()
-            image.save(buffered, format="PNG")
-            img_str = base64.b64encode(buffered.getvalue())
-            img_str = "data:image/png;base64," + str(img_str)[2:-1]
-            return render_template('upload.html', uploaded_image=img_str)
-    return render_template('upload.html')
-
-
-@app.route('/submit-prompt', methods=['POST'])
-def generate_image():
-  prompt = request.form['prompt-input']
-  print(f"Generating an image of {prompt}")
-
-  image = pipe(prompt).images[0]
-  print("Image generated! Converting image ...")
-  
-  buffered = BytesIO()
-  image.save(buffered, format="PNG")
-  img_str = base64.b64encode(buffered.getvalue())
-  img_str = "data:image/png;base64," + str(img_str)[2:-1]
-
-  print("Sending image ...")
-  return render_template('index.html', generated_image=img_str)
-
+    img_bytes = BytesIO()
+    img.save(img_bytes, format="PNG")
+    img_bytes = img_bytes.getvalue()
+    img_bytes = base64.b64encode(img_bytes)
+    img_bytes = img_bytes.decode("utf-8")
+    print("Image converted! Sending image ...")
+    return render_template('index.html', img_bytes=img_bytes)
+  except Exception as e:
+    print(f"Error loading initial: {e}")
 
 if __name__ == '__main__':
     app.run()
