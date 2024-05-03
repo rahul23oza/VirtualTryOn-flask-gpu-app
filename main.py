@@ -31,6 +31,14 @@ try:
     print("----------modal2-------------")
     processor = SamProcessor.from_pretrained("Zigeng/SlimSAM-uniform-50")
     print("SAM model and processor loaded successfully.")
+     # create inpainting pipeline
+    pipeline = AutoPipelineForInpainting.from_pretrained(
+        "redstonehero/ReV_Animated_Inpainting",
+        torch_dtype=torch.float16
+    )
+    print("Inpainting pipeline created!")
+    pipeline.enable_model_cpu_offload()
+    print("Model offload enabled!")
 except Exception as e:
     print(f"Error loading SAM model and processor: {e}")
 
@@ -96,7 +104,7 @@ def index():
 
     # display original image with masks
     # make_image_grid([img, mask_1, mask_2], cols = 3, rows = 1)
-    make_image_grid([img, mask_1], cols = 2, rows = 1)
+    grid = make_image_grid([img, mask_1], cols = 2, rows = 1)
 
     print("Original image with masks displayed!")
 
@@ -111,17 +119,10 @@ def index():
 
 
 
-    # create inpainting pipeline
-    pipeline = AutoPipelineForInpainting.from_pretrained(
-        "redstonehero/ReV_Animated_Inpainting",
-        torch_dtype=torch.float16
-    )
-    print("Inpainting pipeline created!")
-    pipeline.enable_model_cpu_offload()
-    print("Model offload enabled!")
+   
 
     # inpaint the image
-    prompt = "flower-print, t-shirt "
+    prompt = """flower-print, t-shirt """
 
     # generate image
     print("Generating image ...")
@@ -133,29 +134,38 @@ def index():
         image=img,
         mask_image=mask_1,
         guidance_scale=3,
-        strength=1.0).images[0]
-    print("Image generated! Converting image ...")
+        strength=1.0
+      ).images[0]
+    print("Image generated! Converting image ...", img)
 
     # display input image and generated image
     finalImg = make_image_grid([img.resize([512,768]), image], rows = 1, cols = 2)
 
-    print("Input image and generated image displayed!")
+    print("Input image and generated image displayed!",finalImg)
 
     # convert image to bytes
-    img_final_bytes = BytesIO()
-    finalImg.save(img_final_bytes, format="PNG")
-    img_final_bytes = img_final_bytes.getvalue()
-    img_final_bytes = base64.b64encode(img_final_bytes)
-    img_final_bytes = img_final_bytes.decode("utf-8")
-    print("Image converted! Sending image ...")
-    
+    # img_final_bytes = BytesIO()
+    # finalImg.save(img_final_bytes, format="PNG")
+    # img_final_bytes = img_final_bytes.getvalue()
+    # img_final_bytes = base64.b64encode(img_final_bytes)
+    # img_final_bytes = img_final_bytes.decode("utf-8")
+    # print("Image converted! Sending image ...")
+
+
 
     
-
+  # convert grid to bytes
+    grid_image = BytesIO()
+    grid.save(grid_image, format="PNG")
+    grid_image = grid_image.getvalue()
+    grid_image = base64.b64encode(grid_image)
+    grid_image = grid_image.decode("utf-8")
+    print("Grid image converted! Sending image ...")
+    
     
 
 
-    return render_template('index.html', img_bytes=img_final_bytes)
+    return render_template('index.html', img_bytes=grid_image)
   except Exception as e:
     print(f"Error loading initial---: {e}")
     return "Error loading initial page.======>"
