@@ -1,34 +1,26 @@
 from flask_ngrok import run_with_ngrok
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template
 
-import rembg
 import torch
-import numpy as np
-from PIL import Image,ImageOps
+from torchvision import transforms
+from transformers import SamModel, SamProcessor
 from diffusers import AutoPipelineForInpainting
 from diffusers.utils import load_image, make_image_grid
-import matplotlib.pyplot as plt
 import base64
 from io import BytesIO
 
-
-# Start flask app and set to ngrok
 app = Flask(__name__)
 run_with_ngrok(app)
 
 
-# Load the SAM model and processor
 try:
-    print(torch.__version__)
-    print("----------model1-------------")
-    # Create inpainting pipeline
-    pipeline = AutoPipelineForInpainting.from_pretrained(
-        "redstonehero/ReV_Animated_Inpainting", 
-        torch_dtype=torch.float16
-    )
-    print("Inpainting pipeline created!")
-    pipeline.enable_model_cpu_offload()
-    print("Model offload enabled!")
+    print("----------SamModel-------------")
+    model = SamModel.from_pretrained("Zigeng/SlimSAM-uniform-50")
+    print("----------SamModel to cuda-------------")
+    model.to("cuda")
+    print("----------SamProcessor-------------")
+    processor = SamProcessor.from_pretrained("Zigeng/SlimSAM-uniform-50")
+    print("SAM model and processor loaded successfully.")
 except Exception as e:
     print(f"Error loading SAM model and processor: {e}")
 
@@ -38,63 +30,76 @@ except Exception as e:
 def index():
   try:
     print("Initial page loaded!")
-    
-    # Load the input image
-    init_image = load_image("https://picsum.photos/id/870/512/768").resize((512,768))
+    init_img = load_image("https://picsum.photos/seed/picsum/200/300")
+    print("Image Loaded! Converting image ...", )
 
-    # Convert the input image to a numpy array
-    input_array = np.array(init_image)
-
-    # Extract mask using rembg
-    mask_array = rembg.remove(input_array, only_mask=True)
-
-    # Create a PIL Image from the output array
-    mask_image = Image.fromarray(mask_array)
-
-    print("Image generated! Converting image ...", img)
-
-    # convert image to bytes
-    img_out = BytesIO()
-    init_image.save(img_out, format="PNG")
-    img_out = img_out.getvalue()
-    img_out = base64.b64encode(img_out)
-    img_out = img_out.decode("utf-8")
+    img_bytes = BytesIO()
+    init_img.save(img_bytes, format="PNG")
+    img_bytes = img_bytes.getvalue()
+    img_bytes = base64.b64encode(img_bytes)
+    img_bytes = img_bytes.decode("utf-8")
     print("Image converted! Sending image ...")
 
 
-    mask_image_inverted = ImageOps.invert(mask_image)
-    
+    input_points = [[[320, 600]]] # input point for object selection
+    inputs = processor(init_img, input_points=input_points, return_tensors="pt").to("cuda")
+    outputs = model(**inputs)
+    masks = processor.image_processor.post_process_masks(outputs.pred_masks.cpu(), inputs["original_sizes"].cpu(), inputs["reshaped_input_sizes"].cpu())
+    print("Masks post processed! Getting number of mask images ...")
 
-    # convert PIL image to bytes
-    mask_1 = BytesIO()
-    mask_image_inverted.save(mask_1, format="PNG")
-    mask_1 = mask_1.getvalue()
-    mask_1 = base64.b64encode(mask_1)
-    mask_1 = mask_1.decode("utf-8")
-    print("Mask image converted! Sending image ...")
+    print("Number of mask images:(1): ", len(masks[0][0]))
 
+    # Create a ToPILImage transform
+    to_pil = transforms.ToPILImage()
 
+    # Convert boolean tensors to binary tensors
+    binary_matrix_1 = masks[0][0][2].to(dtype=torch.uint8)
+    # apply the transform to the tensors
+    mask_1 = to_pil(binary_matrix_1*255)
 
+    print("binary_matrix_1: ", binary_matrix_1)
+    print("mask_1: ", mask_1)
 
-    prompt = """night sky with a moon and saturn"""
- 
-    negative_prompt = "tail, deformed, mutated, ugly, disfigured"
- 
-    image = pipeline(prompt=prompt,
-        negative_prompt=negative_prompt,
+    img_grid = make_image_grid([init_img, mask_1], cols = 2, rows = 1)
+
+    # img_grid to png
+    img_grid_bytes = BytesIO()
+    img_grid.save(img_grid_bytes, format="PNG")
+    img_grid_bytes = img_grid_bytes.getvalue()
+    img_grid_bytes = base64.b64encode(img_grid_bytes)
+    img_grid_bytes = img_grid_bytes.decode("utf-8")
+
+    print("Image converted! Sending image ...")
+
+    # create inpainting pipeline
+    pipeline = AutoPipelineForInpainting.from_pretrained(
+        "redstonehero/ReV_Animated_Inpainting",
+        torch_dtype=torch.float16
+    )
+    print("Inpainting pipeline created!")
+    pipeline.enable_model_cpu_offload()
+    print("Model offload enabled!")
+   
+
+    # inpaint the image
+    prompt = """flower-print, t-shirt """
+
+    # generate image
+    print("Generating image ...")
+    fin_image = pipeline.inpaint(
+        prompt=prompt,
         width=512,
         height=768,
-        num_inference_steps=20,
-        image=init_image, 
-        mask_image=mask_image_inverted,
-        guidance_scale=1,
-        strength=0.7, 
-        generator=torch.manual_seed(189018)
+        num_inference_steps=24,
+        image=init_img,
+        mask_image=mask_1,
+        guidance_scale=3,
+        strength=1.0
       ).images[0]
-    print("Image generated! Converting image ...", image)
+    print("Image generated! Converting image ...")
 
     # display input image and generated image
-    finalImg = make_image_grid([init_image, image], rows=1, cols=2)
+    finalImg = make_image_grid([fin_image.resize([512,768]), fin_image], rows = 1, cols = 2)
 
     print("Input image and generated image displayed!",finalImg)
 
@@ -107,10 +112,9 @@ def index():
     print("Image converted! Sending image ...")
 
 
-    
 
-
-    return render_template('index.html', img_bytes=finalImg)
+  
+    return render_template('index.html',  img1=img_bytes, img2=img_grid_bytes, img_bytes=img_final_bytes,)
   except Exception as e:
     print(f"Error loading initial---: {e}")
     return "Error loading initial page.======>"

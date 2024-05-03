@@ -16,6 +16,8 @@
 
   <div id="mask-images-container">
     <p>Images</p>
+    <img src="data:image/png;base64,{{ img1 }}" alt="Loaded Image">
+    <img src="data:image/png;base64,{{ img2 }}" alt="Loaded Image">
     {% if img_bytes %}
     <img src="data:image/png;base64,{{ img_bytes }}" alt="Loaded Image">
     {% elif error %}
