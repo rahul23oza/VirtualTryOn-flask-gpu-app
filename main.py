@@ -67,13 +67,13 @@ def index():
         pipeline = AutoPipelineForInpainting.from_pretrained(
             "redstonehero/ReV_Animated_Inpainting",
             torch_dtype=torch.float16,
-            use_safetensors=True,
+            # use_safetensors=True,
         )
         print("Inpainting pipeline created!")
         pipeline.enable_model_cpu_offload()
-        pipeline.enable_attention_slicing()
-        pipeline.enable_memory_optimization()
-        pipeline = pipeline.to("cuda")
+        # pipeline.enable_attention_slicing()
+        # pipeline.enable_memory_optimization()
+        # pipeline = pipeline.to("cuda")
         print("Model offload enabled!")
 
         # Load the saved mask
@@ -84,16 +84,28 @@ def index():
 
         # generate image
         print("Generating image ...")
-        fin_image = pipeline.inpaint(
+        # fin_image = pipeline.inpaint(
+        #     prompt=prompt,
+        #     width=512,
+        #     height=768,
+        #     num_inference_steps=24,
+        #     image=init_img,
+        #     mask_image=mask_1,
+        #     guidance_scale=3,
+        #     strength=1.0
+        # ).images[0]
+
+        fin_image = pipeline(
             prompt=prompt,
-            width=512,
-            height=768,
-            num_inference_steps=24,
             image=init_img,
             mask_image=mask_1,
+            height=768,
+            width=512,
+            num_inference_steps=24,
             guidance_scale=3,
-            strength=1.0
-        ).images[0]
+            strength=1.0,
+        )["sample"][0]
+
         print("Image generated! Converting image ...")
 
         # display input image and generated image
