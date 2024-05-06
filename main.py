@@ -36,8 +36,8 @@ def index():
         print("----------SamProcessor-------------")
         processor = SamProcessor.from_pretrained("Zigeng/SlimSAM-uniform-50")
         print("SAM model and processor loaded successfully.")
-
-        input_points = [[320, 600]]  # input point for object selection
+# ('The input_points must be a 4D tensor. Of shape `batch_size`, `point_batch_size`, `nb_points_per_image`, `2`.', ' got torch.Size([1, 1, 2]).')
+        input_points = [[[320, 600]]]  # input point for object selection
         inputs = processor(init_img, input_points=input_points, return_tensors="pt").to("cuda")
         outputs = model(**inputs)
         masks = processor.image_processor.post_process_masks(outputs.pred_masks.cpu(), inputs["original_sizes"].cpu(), inputs["reshaped_input_sizes"].cpu())
