@@ -84,29 +84,30 @@ def index():
 
         # generate image
         print("Generating image ...")
-        # fin_image = pipeline.inpaint(
-        #     prompt=prompt,
-        #     width=512,
-        #     height=768,
-        #     num_inference_steps=24,
-        #     image=init_img,
-        #     mask_image=mask_1,
-        #     guidance_scale=3,
-        #     strength=1.0
-        # ).images[0]
-
-        fin_image = pipeline(
+        fin_image = pipeline.inpaint(
             prompt=prompt,
+            width=512,
+            height=768,
+            num_inference_steps=24,
             image=init_img,
             mask_image=mask_1,
-            height=768,
-            width=512,
-            num_inference_steps=24,
             guidance_scale=3,
-            strength=1.0,
-        )["sample"][0]
+            strength=1.0
+        )
+        # .images[0]
 
-        print("Image generated! Converting image ...")
+        # fin_image = pipeline.inpaint(
+        #     prompt=prompt,
+        #     image=init_img,
+        #     mask_image=mask_1,
+        #     height=768,
+        #     width=512,
+        #     num_inference_steps=24,
+        #     guidance_scale=3,
+        #     strength=1.0,
+        # )["sample"][0]
+
+        print("Image generated! Converting image ...",fin_image)
 
         # display input image and generated image
         finalImg = make_image_grid([fin_image.resize([512, 768]), fin_image], rows=1, cols=2)
