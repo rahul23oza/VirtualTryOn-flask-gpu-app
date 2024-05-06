@@ -6,7 +6,7 @@ import os
 import torch
 from torchvision import transforms
 from transformers import SamModel, SamProcessor
-from diffusers import AutoPipelineForInpainting
+from diffusers import AutoPipelineForInpainting, StableDiffusionPipeline
 from diffusers.utils import load_image, make_image_grid
 import base64
 from io import BytesIO
@@ -64,7 +64,7 @@ def index():
         del model, processor, inputs, outputs, masks
 
         # create inpainting pipeline
-        pipeline = AutoPipelineForInpainting.from_pretrained(
+        pipeline = StableDiffusionPipeline.from_pretrained(
             "redstonehero/ReV_Animated_Inpainting",
             torch_dtype=torch.float16,
             # use_safetensors=True,
