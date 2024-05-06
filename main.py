@@ -6,7 +6,7 @@ import os
 import torch
 from torchvision import transforms
 from transformers import SamModel, SamProcessor
-from diffusers import StableDiffusionInpaintPipeline
+from diffusers import AutoPipelineForInpainting
 from diffusers.utils import load_image, make_image_grid
 import base64
 from io import BytesIO
@@ -64,12 +64,16 @@ def index():
         del model, processor, inputs, outputs, masks
 
         # create inpainting pipeline
-        pipeline = StableDiffusionInpaintPipeline.from_pretrained(
+        pipeline = AutoPipelineForInpainting.from_pretrained(
             "redstonehero/ReV_Animated_Inpainting",
-            torch_dtype=torch.float16
+            torch_dtype=torch.float16,
+            use_safetensors=True,
         )
         print("Inpainting pipeline created!")
         pipeline.enable_model_cpu_offload()
+        pipeline.enable_attention_slicing()
+        pipeline.enable_memory_optimization()
+        pipeline = pipeline.to("cuda")
         print("Model offload enabled!")
 
         # Load the saved mask
