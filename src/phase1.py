@@ -5,7 +5,7 @@ import torch
 from torchvision import transforms
 # from diffusers import StableDiffusionPipeline
 from transformers import SamModel, SamProcessor
-from diffusers import StableDiffusionInpaintPipeline
+from diffusers import AutoPipelineForInpainting
 from diffusers.utils import load_image, make_image_grid
 import matplotlib.pyplot as plt
 import base64
@@ -109,7 +109,7 @@ def index():
 
 
   # create inpainting pipeline
-    pipeline = StableDiffusionInpaintPipeline.from_pretrained(
+    pipeline = AutoPipelineForInpainting.from_pretrained(
         "redstonehero/ReV_Animated_Inpainting",
         torch_dtype=torch.float16
     )
