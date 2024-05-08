@@ -15,11 +15,15 @@
 
 
   <div id="mask-images-container">
-    <p>Images</p>
+    <p>Images 1: Input image</p>
     <img src="data:image/png;base64,{{ img1 }}" alt="Loaded Image">
+    <p>Images 1: step_1</p>
+    <img src="data:image/png;base64,{{ step_1 }}" alt="Loaded Image">
+    <p>Images 1: img2</p>
     <img src="data:image/png;base64,{{ img2 }}" alt="Loaded Image">
-    {% if img_bytes %}
+    <p>Images 1: img_bytes</p>
     <img src="data:image/png;base64,{{ img_bytes }}" alt="Loaded Image">
+    {% if img_bytes %}
     {% elif error %}
     <p style="color: red;">p{{ error }}</p>
     {% endif %}

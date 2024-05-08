@@ -18,7 +18,7 @@ run_with_ngrok(app)
 def index():
     try:
         print("Initial page loaded!")
-        init_img = load_image("https://picsum.photos/seed/picsum/200/300")
+        init_img = load_image("https://livcasttestenvci.blob.core.windows.net/test/test2.jpg")
         print("Image Loaded! Converting image ...")
 
         img_bytes = BytesIO()
@@ -36,7 +36,7 @@ def index():
         print("----------SamProcessor-------------")
         processor = SamProcessor.from_pretrained("Zigeng/SlimSAM-uniform-50")
         print("SAM model and processor loaded successfully.")
-# ('The input_points must be a 4D tensor. Of shape `batch_size`, `point_batch_size`, `nb_points_per_image`, `2`.', ' got torch.Size([1, 1, 2]).')
+
         input_points = [[[320, 600]]]  # input point for object selection
         inputs = processor(init_img, input_points=input_points, return_tensors="pt").to("cuda")
         outputs = model(**inputs)
@@ -56,9 +56,22 @@ def index():
         print("binary_matrix_1: ", binary_matrix_1)
         print("mask_1: ", mask_1)
 
+        step_1 = make_image_grid([init_img, mask_1], cols = 2, rows = 1)
+        print("Input image and mask displayed!", step_1)
         # Save the mask to a file
         mask_path = os.path.join('static', 'mask.png')
         mask_1.save(mask_path)
+
+        step1_path = os.path.join('static', 'step1.png')
+        step_1.save(step1_path)
+
+        step1_bytes = BytesIO()
+        step_1.save(step1_bytes, format="PNG")
+        step1_bytes = step1_bytes.getvalue()
+        step1_bytes = base64.b64encode(step1_bytes)
+        step1_bytes = step1_bytes.decode("utf-8")
+        print("Mask image converted! Sending image ...")
+
 
         # Release SAM model from memory
         del model, processor, inputs, outputs, masks
@@ -112,6 +125,15 @@ def index():
         #     strength=1.0,
         # )["sample"][0]
 
+        fin_bytes = BytesIO()
+        fin_image.save(fin_bytes, format="PNG")
+        fin_bytes = fin_bytes.getvalue()
+        fin_bytes = base64.b64encode(fin_bytes)
+        fin_bytes = fin_bytes.decode("utf-8")
+
+
+
+
         print("Image generated! Converting image ...",fin_image)
 
         # display input image and generated image
@@ -127,7 +149,13 @@ def index():
         img_final_bytes = img_final_bytes.decode("utf-8")
         print("Image converted! Sending image ...")
 
-        return render_template('index.html', img1=img_bytes, img2=img_bytes, img_bytes=img_final_bytes)
+        return render_template(
+            'index.html',
+            img1=img_bytes, 
+            step_1=step1_bytes,
+            img2=fin_bytes, 
+            img_bytes=img_final_bytes
+        )
     except Exception as e:
         print(f"Error loading initial---: {e}")
         return "Error loading initial page.======>"
