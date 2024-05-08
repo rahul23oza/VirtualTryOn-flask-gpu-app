@@ -64,16 +64,21 @@ def index():
         del model, processor, inputs, outputs, masks
 
         # create inpainting pipeline
-        pipeline = StableDiffusionPipeline.from_pretrained(
+        # pipeline = StableDiffusionPipeline.from_pretrained(
+        #     "redstonehero/ReV_Animated_Inpainting",
+        #     torch_dtype=torch.float16,
+        #     # use_safetensors=True,
+        # )
+        # print("Inpainting pipeline created!")
+        # pipeline.enable_model_cpu_offload()
+
+        pipeline = AutoPipelineForInpainting.from_pretrained(
             "redstonehero/ReV_Animated_Inpainting",
-            torch_dtype=torch.float16,
-            # use_safetensors=True,
+            torch_dtype=torch.float16
         )
-        print("Inpainting pipeline created!")
+
         pipeline.enable_model_cpu_offload()
-        # pipeline.enable_attention_slicing()
-        # pipeline.enable_memory_optimization()
-        # pipeline = pipeline.to("cuda")
+
         print("Model offload enabled!")
 
         # Load the saved mask
@@ -81,11 +86,12 @@ def index():
 
         # inpaint the image
         prompt = """flower-print, t-shirt """
-
+        negative_prompt = " deformed, mutated, ugly, disfigured"
         # generate image
         print("Generating image ...")
-        fin_image = pipeline.inpaint(
+        fin_image = pipeline(
             prompt=prompt,
+            negative_prompt=negative_prompt,
             width=512,
             height=768,
             num_inference_steps=24,
@@ -93,8 +99,7 @@ def index():
             mask_image=mask_1,
             guidance_scale=3,
             strength=1.0
-        )
-        # .images[0]
+        ).images[0]
 
         # fin_image = pipeline.inpaint(
         #     prompt=prompt,
