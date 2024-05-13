@@ -18,7 +18,7 @@ run_with_ngrok(app)
 def index():
     try:
         print("Initial page loaded!")
-        init_img = load_image("https://www.istockphoto.com/photos/man-in-white-t-shirt")
+        init_img = load_image("https://media.istockphoto.com/id/1392944438/photo/portrait-of-handsome-attractive-positive-curly-haired-indian-or-arabian-guy-wearing-white.jpg?s=2048x2048&w=is&k=20&c=8djgC1sGK6eemv4fbIYroIg-4FkfkIJQYsF5_EL-HBI=")
         print("Image Loaded! Converting image ...")
 
         img_bytes = BytesIO()
