@@ -18,7 +18,7 @@ run_with_ngrok(app)
 def index():
     try:
         print("Initial page loaded!")
-        init_img = load_image("https://livcasttestenvci.blob.core.windows.net/test/test2.jpg")
+        init_img = load_image("https://www.istockphoto.com/photos/man-in-white-t-shirt")
         print("Image Loaded! Converting image ...")
 
         img_bytes = BytesIO()
@@ -37,7 +37,7 @@ def index():
         processor = SamProcessor.from_pretrained("Zigeng/SlimSAM-uniform-50")
         print("SAM model and processor loaded successfully.")
 
-        input_points = [[[150, 400]]]  # input point for object selection [[[320, 600]]]
+        input_points = [[[320, 600]]]  # input point for object selection [[[320, 600]]]
         inputs = processor(init_img, input_points=input_points, return_tensors="pt").to("cuda")
         outputs = model(**inputs)
         masks = processor.image_processor.post_process_masks(outputs.pred_masks.cpu(), inputs["original_sizes"].cpu(), inputs["reshaped_input_sizes"].cpu())
