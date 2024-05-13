@@ -37,7 +37,7 @@ def index():
         processor = SamProcessor.from_pretrained("Zigeng/SlimSAM-uniform-50")
         print("SAM model and processor loaded successfully.")
 
-        input_points = [[[320, 600]]]  # input point for object selection
+        input_points = [[[150, 400]]]  # input point for object selection [[[320, 600]]]
         inputs = processor(init_img, input_points=input_points, return_tensors="pt").to("cuda")
         outputs = model(**inputs)
         masks = processor.image_processor.post_process_masks(outputs.pred_masks.cpu(), inputs["original_sizes"].cpu(), inputs["reshaped_input_sizes"].cpu())
