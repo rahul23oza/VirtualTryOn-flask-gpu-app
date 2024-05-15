@@ -102,33 +102,17 @@ def index():
         negative_prompt = " deformed, mutated, ugly, disfigured"
         # generate image
         print("Generating image ...")
-        
-        # fin_image = pipeline(
-        #     prompt=prompt,
-        #     negative_prompt=negative_prompt,
-        #     width=512,
-        #     height=768,
-        #     num_inference_steps=24,
-        #     image=init_img,
-        #     mask_image=mask_1,
-        #     guidance_scale=3,
-        #     strength=1.0
-        # ).images[0]
-
         fin_image = pipeline(
             prompt=prompt,
             negative_prompt=negative_prompt,
             width=512,
             height=768,
-            num_inference_steps=20,
-            image=init_img, 
+            num_inference_steps=24,
+            image=init_img,
             mask_image=mask_1,
-            guidance_scale=1,
-            strength=0.7, 
-            generator=torch.manual_seed(189018)
+            guidance_scale=3,
+            strength=1.0
         ).images[0]
-        print("Image generated! Converting image ...", image)
-
 
         # fin_image = pipeline.inpaint(
         #     prompt=prompt,
