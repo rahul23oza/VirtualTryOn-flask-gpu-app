@@ -17,16 +17,16 @@ run_with_ngrok(app)
 @app.route('/')
 def index():
     try:
-        print("Initial page loaded!")
+        print("---------- \nInitial page loaded!")
         init_img = load_image("https://media.istockphoto.com/id/1392944438/photo/portrait-of-handsome-attractive-positive-curly-haired-indian-or-arabian-guy-wearing-white.jpg?s=2048x2048&w=is&k=20&c=8djgC1sGK6eemv4fbIYroIg-4FkfkIJQYsF5_EL-HBI=")
-        print("Image Loaded! Converting image ...")
+        print("---------- \nImage Loaded! Converting image ...")
 
         img_bytes = BytesIO()
         init_img.save(img_bytes, format="PNG")
         img_bytes = img_bytes.getvalue()
         img_bytes = base64.b64encode(img_bytes)
         img_bytes = img_bytes.decode("utf-8")
-        print("Image converted! Sending image ...")
+        print("---------- \n Image converted! Sending image ...")
 
         # Generate mask using SAM model
         print("----------SamModel-------------")
@@ -35,15 +35,15 @@ def index():
         model.to("cuda")
         print("----------SamProcessor-------------")
         processor = SamProcessor.from_pretrained("Zigeng/SlimSAM-uniform-50")
-        print("SAM model and processor loaded successfully.")
+        print("---------- \nSAM model and processor loaded successfully.")
 
         input_points = [[[320, 600]]]  # input point for object selection [[[320, 600]]]
         inputs = processor(init_img, input_points=input_points, return_tensors="pt").to("cuda")
         outputs = model(**inputs)
         masks = processor.image_processor.post_process_masks(outputs.pred_masks.cpu(), inputs["original_sizes"].cpu(), inputs["reshaped_input_sizes"].cpu())
-        print("Masks post processed! Getting number of mask images ...")
+        print("---------- \n Masks post processed! Getting number of mask images ...")
 
-        print("Number of mask images:(1): ", len(masks[0][0]))
+        print("---------- \n Number of mask images:(1): ", len(masks[0][0]))
 
         # Create a ToPILImage transform
         to_pil = transforms.ToPILImage()
@@ -53,11 +53,11 @@ def index():
         # apply the transform to the tensors
         mask_1 = to_pil(binary_matrix_1 * 255)
 
-        print("binary_matrix_1: ", binary_matrix_1)
-        print("mask_1: ", mask_1)
+        print("---------- \nbinary_matrix_1: ", binary_matrix_1)
+        print("---------- \nmask_1: ", mask_1)
 
         step_1 = make_image_grid([init_img, mask_1], cols = 2, rows = 1)
-        print("Input image and mask displayed!", step_1)
+        print("---------- \nInput image and mask displayed!", step_1)
         # Save the mask to a file
         mask_path = os.path.join('static', 'mask.png')
         mask_1.save(mask_path)
@@ -70,7 +70,7 @@ def index():
         step1_bytes = step1_bytes.getvalue()
         step1_bytes = base64.b64encode(step1_bytes)
         step1_bytes = step1_bytes.decode("utf-8")
-        print("Mask image converted! Sending image ...")
+        print("---------- \nMask image converted! Sending image ...")
 
 
         # Release SAM model from memory
@@ -92,7 +92,7 @@ def index():
 
         pipeline.enable_model_cpu_offload()
 
-        print("Model offload enabled!")
+        print("---------- \nModel offload enabled!")
 
         # Load the saved mask
         mask_1 = load_image(mask_path)
@@ -101,7 +101,7 @@ def index():
         prompt = """flower-print, t-shirt """
         negative_prompt = " deformed, mutated, ugly, disfigured"
         # generate image
-        print("Generating image ...")
+        print("---------- \nGenerating image ...")
 
         # fin_image = pipeline(
         #     prompt=prompt,
@@ -127,7 +127,7 @@ def index():
             strength=0.7, 
             generator=torch.manual_seed(189018)
         ).images[0]
-        print("Image generated! Converting image ...", image)
+        # print("Image generated! Converting image ...", image)
 
 
         # fin_image = pipeline.inpaint(
@@ -150,12 +150,12 @@ def index():
 
 
 
-        print("Image generated! Converting image ...",fin_image)
+        print("---------- \nImage generated! Converting image ...",fin_image)
 
         # display input image and generated image
         finalImg = make_image_grid([fin_image.resize([512, 768]), fin_image], rows=1, cols=2)
 
-        print("Input image and generated image displayed!", finalImg)
+        print("---------- \nInput image and generated image displayed!", finalImg)
 
         # convert image to bytes
         img_final_bytes = BytesIO()
@@ -163,7 +163,7 @@ def index():
         img_final_bytes = img_final_bytes.getvalue()
         img_final_bytes = base64.b64encode(img_final_bytes)
         img_final_bytes = img_final_bytes.decode("utf-8")
-        print("Image converted! Sending image ...")
+        print("---------- \nImage converted! Sending image ...")
 
         return render_template(
             'index.html',
@@ -173,8 +173,8 @@ def index():
             img_bytes=img_final_bytes
         )
     except Exception as e:
-        print(f"Error loading initial---: {e}")
-        return "Error loading initial page.======>"
+        print(f"---------- \n Error loading initial---: {e}")
+        return "---------- \n Error loading initial page.======>"
 
 if __name__ == '__main__':
     app.run()
