@@ -102,7 +102,7 @@ def index():
         negative_prompt = " deformed, mutated, ugly, disfigured"
         # generate image
         print("Generating image ...")
-        
+
         # fin_image = pipeline(
         #     prompt=prompt,
         #     negative_prompt=negative_prompt,
