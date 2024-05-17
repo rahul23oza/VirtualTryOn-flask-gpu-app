@@ -18,7 +18,7 @@ run_with_ngrok(app)
 def index():
     try:
         print("---------- \nInitial page loaded!")
-        init_img = load_image("https://png.pngtree.com/png-vector/20240104/ourlarge/pngtree-a-man-in-white-polo-shirt-posing-for-picture-png-image_11401309.png")
+        init_img = load_image("https://rukminim2.flixcart.com/image/1080/1080/xif0q/t-shirt/7/8/y/l-nvmt2-bk-uniberry-original-imagz4wkrhdexyug.jpeg?q=70&crop=false")
         print("---------- \nImage Loaded! Converting image ...")
 
         img_bytes = BytesIO()
