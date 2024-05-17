@@ -18,7 +18,8 @@ run_with_ngrok(app)
 def index():
     try:
         print("---------- \nInitial page loaded!")
-        init_img = load_image("https://rukminim2.flixcart.com/image/1080/1080/xif0q/t-shirt/7/8/y/l-nvmt2-bk-uniberry-original-imagz4wkrhdexyug.jpeg?q=70&crop=false")
+        img_url ="https://thefoomer.in/cdn/shop/files/jpeg-optimizer_PATP3502.jpg?v=1687341529"
+        init_img = load_image(img_url)
         print("---------- \nImage Loaded! Converting image ...")
 
         img_bytes = BytesIO()
