@@ -18,7 +18,7 @@ run_with_ngrok(app)
 def index():
     try:
         print("---------- \nInitial page loaded!")
-        init_img = load_image("https://media.istockphoto.com/id/1392944438/photo/portrait-of-handsome-attractive-positive-curly-haired-indian-or-arabian-guy-wearing-white.jpg?s=2048x2048&w=is&k=20&c=8djgC1sGK6eemv4fbIYroIg-4FkfkIJQYsF5_EL-HBI=")
+        init_img = load_image("https://png.pngtree.com/png-vector/20240104/ourlarge/pngtree-a-man-in-white-polo-shirt-posing-for-picture-png-image_11401309.png")
         print("---------- \nImage Loaded! Converting image ...")
 
         img_bytes = BytesIO()
@@ -114,20 +114,24 @@ def index():
         #     guidance_scale=3,
         #     strength=1.0
         # ).images[0]
+        try:
+            fin_image = pipeline(
+                prompt=prompt,
+                negative_prompt=negative_prompt,
+                width=512,
+                height=768,
+                num_inference_steps=20,
+                image=init_img, 
+                mask_image=mask_1,
+                guidance_scale=1,
+                strength=0.7, 
+                generator=torch.manual_seed(189018)
+            ).images[0]
+            # print("Image generated! Converting image ...", image)
+            print("---------- \n Pipe line is working.... ")
 
-        fin_image = pipeline(
-            prompt=prompt,
-            negative_prompt=negative_prompt,
-            width=512,
-            height=768,
-            num_inference_steps=20,
-            image=init_img, 
-            mask_image=mask_1,
-            guidance_scale=1,
-            strength=0.7, 
-            generator=torch.manual_seed(189018)
-        ).images[0]
-        # print("Image generated! Converting image ...", image)
+        except Exception as e:
+            print(f"---------- \npipeline exception as {e}")
 
 
         # fin_image = pipeline.inpaint(
@@ -153,7 +157,13 @@ def index():
         print("---------- \nImage generated! Converting image ...",fin_image)
 
         # display input image and generated image
-        finalImg = make_image_grid([fin_image.resize([512, 768]), fin_image], rows=1, cols=2)
+        try:
+            finalImg = make_image_grid([fin_image.resize([512, 768]), fin_image], rows=1, cols=2)
+            print("---------- \nImage grid working perfectly")
+
+        except Exception as e:
+            print(f"---------- \nImage grid not working :{e} ")
+
 
         print("---------- \nInput image and generated image displayed!", finalImg)
 
