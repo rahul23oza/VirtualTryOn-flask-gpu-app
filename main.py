@@ -160,7 +160,7 @@ def index():
         # display input image and generated image
         try:
             finalImg = make_image_grid([fin_image.resize([512, 768]), fin_image], rows=1, cols=2)
-            print("---------- \nImage grid working perfectly")
+            print("---------- \nImage grid working perfectly fine ")
 
         except Exception as e:
             print(f"---------- \nImage grid not working :{e} ")
