@@ -180,11 +180,15 @@ def index():
         return render_template(
             'index.html',
             dct={'img1':img_bytes,'step_1':step1_bytes,'img2':fin_bytes,'img_bytes':img_final_bytes}
-            # img1=img_bytes, 
-            # step_1=step1_bytes,
-            # img2=fin_bytes, 
-            # img_bytes=img_final_bytes
-        )
+            )
+
+        # return render_template(
+        #     'index.html',
+        #     # img1=img_bytes, 
+        #     # step_1=step1_bytes,
+        #     # img2=fin_bytes, 
+        #     # img_bytes=img_final_bytes
+        # )
     except Exception as e:
         print(f"---------- \n Error loading initial---: {e}")
         return "---------- \n Error loading initial page.======>"
