@@ -104,37 +104,38 @@ def index():
         # generate image
         print("---------- \nGenerating image ...")
 
-        # fin_image = pipeline(
-        #     prompt=prompt,
-        #     negative_prompt=negative_prompt,
-        #     width=512,
-        #     height=768,
-        #     num_inference_steps=24,
-        #     image=init_img,
-        #     mask_image=mask_1,
-        #     guidance_scale=3,
-        #     strength=1.0
-        # ).images[0]
         try:
             fin_image = pipeline(
                 prompt=prompt,
                 negative_prompt=negative_prompt,
                 width=512,
                 height=768,
-                num_inference_steps=20,
-                image=init_img, 
+                num_inference_steps=24,
+                image=init_img,
                 mask_image=mask_1,
-                guidance_scale=1,
-                strength=0.7, 
-                generator=torch.manual_seed(189018)
+                guidance_scale=3,
+                strength=1.0
             ).images[0]
-            # print("Image generated! Converting image ...", image)
-            print("---------- \n Pipe line is working.... ")
+            
 
         except Exception as e:
             print(f"---------- \npipeline exception as {e}")
 
-
+        # fin_image = pipeline(
+        #         prompt=prompt,
+        #         negative_prompt=negative_prompt,
+        #         width=512,
+        #         height=768,
+        #         num_inference_steps=20,
+        #         image=init_img, 
+        #         mask_image=mask_1,
+        #         guidance_scale=1,
+        #         strength=0.7, 
+        #         generator=torch.manual_seed(189018)
+        #     ).images[0]
+        #     # print("Image generated! Converting image ...", image)
+        # print("---------- \n Pipe line is working.... ")
+        
         # fin_image = pipeline.inpaint(
         #     prompt=prompt,
         #     image=init_img,
@@ -160,7 +161,7 @@ def index():
         # display input image and generated image
         try:
             finalImg = make_image_grid([fin_image.resize([512, 768]), fin_image], rows=1, cols=2)
-            print("---------- \nImage grid working perfectly fine ")
+            print("---------- \nImage grid working perfectly fine")
 
         except Exception as e:
             print(f"---------- \nImage grid not working :{e} ")
@@ -175,17 +176,19 @@ def index():
         img_final_bytes = base64.b64encode(img_final_bytes)
         img_final_bytes = img_final_bytes.decode("utf-8")
         print("---------- \nImage converted! Sending image ...")
-
+        
         return render_template(
             'index.html',
-            img1=img_bytes, 
-            step_1=step1_bytes,
-            img2=fin_bytes, 
-            img_bytes=img_final_bytes
+            dct={'img1':img_bytes,'step_1':step1_bytes,'img2':fin_bytes,'img_bytes':img_final_bytes}
+            # img1=img_bytes, 
+            # step_1=step1_bytes,
+            # img2=fin_bytes, 
+            # img_bytes=img_final_bytes
         )
     except Exception as e:
         print(f"---------- \n Error loading initial---: {e}")
         return "---------- \n Error loading initial page.======>"
+     
 
 if __name__ == '__main__':
     app.run()
